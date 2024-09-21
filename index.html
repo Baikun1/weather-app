@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to top, rgb(0, 0, 0), #120174);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        #error_block {
+            transition: opacity 0.5s ease;
+        }
+
+        #error_block.show {
+            display: block;
+            opacity: 1;
+        }
+
+        #error_block.hide {
+            opacity: 0;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-card p-8 m-auto rounded-lg shadow-lg text-white max-w-md">
+        <div class="flex items-center mb-6">
+            <input id="city-input" type="text" placeholder="Enter city name"
+                class="w-full p-2 text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <button id="search-button"
+                class="ml-2 bg-green-500 px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M21 21l-5.197-5.197M16.5 10.5a7.5 7.5 0 1 0-10.607 10.607A7.5 7.5 0 0 0 16.5 10.5z" />
+                </svg>
+            </button>
+        </div>
+        <div class="hidden" id="display">
+            <div class="text-center">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAHuYrY3CrOGli5PG-TsJidmnTFOdOiNIRKQ&s"
+                    alt="Weather Icon"
+                    class="h-20 w-20 mx-auto rounded-full mb-4 transition duration-300 transform hover:scale-110">
+                <div>
+                    <h1 class="text-2xl font-bold" id="city">Bengaluru</h1>
+                    <h2 class="text-xl mt-2"><span class="text-3xl" id="temp">28 ℃</span></h2>
+                </div>
+            </div>
+            <div class="flex justify-between mt-6">
+                <div class="text-center">
+                    <h1 class="font-bold">Humidity</h1>
+                    <h2 class="text-lg" id="humidity">74%</h2>
+                </div>
+                <div class="text-center">
+                    <h1 class="font-bold">Windspeed</h1>
+                    <h2 class="text-lg" id="windspeed">6 km/hr</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden text-center text-2xl shadow-2xl rounded-xl text-white" id="error_block">
+        <h1 class="bg-red-600 p-4 rounded">Error fetching data</h1>
+    </div>
+
+    <script>
+        const cityInput = document.getElementById('city-input');
+        const searchButton = document.getElementById('search-button');
+        const displays = document.getElementById('display');
+        const errorBlock = document.getElementById('error_block');
+        const cityName = document.getElementById('city');
+        const temp = document.getElementById('temp');
+        const humidity = document.getElementById('humidity');
+        const wind = document.getElementById('windspeed');
+
+        const fetchWeatherData = () => {
+            const city = cityInput.value;
+            if (city) {
+                const url = `https://freetestapi.com/api/v1/weathers?search=${city}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length) {
+                            const weather = data[0]; // Adjust based on your API response
+                            cityName.innerText = weather.city;
+                            temp.innerText = `${weather.temperature} ℃`;
+                            humidity.innerText = `${weather.humidity}%`;
+                            wind.innerText = `${weather.windSpeed} km/hr`;
+                            errorBlock.classList.add('hidden');
+                            displays.classList.remove('hidden');
+                        } else {
+                            showError('No weather data found for this city.');
+                        }
+                    })
+                    .catch(error => {
+                        showError(`Error fetching weather data: ${error}`);
+                    });
+            } else {
+                alert('Please enter a city name.');
+            }
+        };
+
+        searchButton.addEventListener('click', fetchWeatherData);
+
+        cityInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                fetchWeatherData();
+            }
+        });
+
+        const showError = (message) => {
+            errorBlock.innerText = message;
+            errorBlock.classList.remove('hidden');
+            errorBlock.classList.add('show');
+        };
+
+    </script>
+</body>
+
+</html>
